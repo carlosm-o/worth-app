@@ -9,11 +9,21 @@
     <body>
         <h1>Retirement Calculator</h1>
 
-        <form action="/stock_search" method="POST">
-            <p>Find out how long it will</p>
+        <form action="/retirement" method="POST">
+            <p>Find out how long it will take until you retire:</p>
             <section>
-                <label class="radio-inline"><input type="radio" name="optradio" value="Max" />Max</label>
-                <label class="radio-inline"><input type="radio" name="optradio" value="Min" />Min</label>
+                <p>Enter whole numbers only.</p>
+                <label
+                    >What is your monthly income:
+                    <input type="text" name="income" size="7" maxlength="100" required="required" />
+                </label>
+            </section>
+            <br />
+            <section>
+                <label
+                    >What is your monthly expense total:
+                    <input type="text" name="expense" size="7" maxlength="100" required="required" />
+                </label>
             </section>
             <br />
             <section><button type="submit">Submit</button></section>
