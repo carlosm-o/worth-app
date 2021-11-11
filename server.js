@@ -23,6 +23,26 @@ app.post('/investment_returns', (req, res) => {
     (async () => {
         try {
             const response = await got('http://localhost:4000/returns');
+
+            const averageRate = response.body / 100;
+
+            const weeklyYearTotal = expense * 52;
+            const investmentValueWeekly = weeklyYearTotal * (1 + averageRate) ** 10;
+
+            const monthlyYearTotal = expense * 12;
+            const investmentValueMonthly = monthlyYearTotal * (1 + averageRate) ** 10;
+
+            let investmentValue;
+
+            selection === 'weekly'
+                ? (investmentValue = investmentValueWeekly)
+                : (investmentValue = investmentValueMonthly);
+
+            res.send(
+                `If you were to invest your ${selection} expense of $${expense} in the S&P 500, your investment would total $${parseInt(
+                    investmentValue
+                )} after 10 years based on the average returns of the S&P 500 over the last 10 years.`
+            );
         } catch (error) {
             console.log(error.response.body);
             //=> 'Internal server error ...'
