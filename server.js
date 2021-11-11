@@ -3,7 +3,7 @@
 const PORT = 3000;
 
 const retirementText = require('./retirement-text').retirementText;
-
+const got = require('got');
 const express = require('express');
 const app = express();
 
@@ -19,13 +19,15 @@ app.post('/investment_returns', (req, res) => {
     const request = req.body;
     const selection = request.optradio;
     const expense = request.expense;
-    let investmentValue;
 
-    selection === 'weekly' ? (investmentValue = expense * 752) : (investmentValue = expense * 173);
-
-    res.send(
-        `If you were to invest your ${selection} expense of $${expense}, your investment would total $${investmentValue} after 10 years.`
-    );
+    (async () => {
+        try {
+            const response = await got('http://localhost:4000/returns');
+        } catch (error) {
+            console.log(error.response.body);
+            //=> 'Internal server error ...'
+        }
+    })();
 });
 
 app.post('/retirement', (req, res) => {
