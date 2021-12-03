@@ -22,15 +22,26 @@ app.post('/investment_returns', (req, res) => {
 
     (async () => {
         try {
-            const response = await got('http://localhost:4000/returns');
+            const response = await got('http://localhost:4400');
 
-            const averageRate = response.body / 100;
+            const tabledata = JSON.parse(response.body);
+
+            const yearlyReturns = [];
+
+            let index = 0;
+
+            for (let i = 0; i < 10; i++) {
+                yearlyReturns.push(parseFloat(tabledata[1][index][6]));
+                index += 1;
+            }
+
+            const returnsAveragePercent = parseInt(yearlyReturns.reduce((a, b) => a + b) / yearlyReturns.length) / 100;
 
             const weeklyYearTotal = expense * 52;
-            const investmentValueWeekly = weeklyYearTotal * (1 + averageRate) ** 10;
+            const investmentValueWeekly = weeklyYearTotal * (1 + returnsAveragePercent) ** 10;
 
             const monthlyYearTotal = expense * 12;
-            const investmentValueMonthly = monthlyYearTotal * (1 + averageRate) ** 10;
+            const investmentValueMonthly = monthlyYearTotal * (1 + returnsAveragePercent) ** 10;
 
             let investmentValue;
 
