@@ -10,4 +10,4 @@ const retirementText = {
     7: "If you're not already retired, you'll retire any day now! You made it to the end-game, enjoy retirement!",
 };
 
-module.exports.retirementText = retirementText;
+export default retirementText;

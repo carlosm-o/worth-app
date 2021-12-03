@@ -1,75 +1,17 @@
-'use strict';
+import React, { useState } from 'react';
+import retirementText from '../data/retirement-text';
 
-const PORT = 3000;
+function RetirementCalc() {
+    const [income, setIncome] = useState('');
+    const [expense, setExpense] = useState('');
+    const [totalYears, setYears] = useState('');
 
-const retirementText = require('./retirement-text').retirementText;
-const got = require('got');
-const express = require('express');
-const app = express();
+    const calcTimeToRetirement = (e) => {
+        e.preventDefault();
+        const incomeInt = parseInt(income);
+        const expenseInt = parseInt(expense);
 
-app.use(
-    express.urlencoded({
-        extended: true,
-    })
-);
-
-app.use(express.static('public'));
-
-app.post('/investment_returns', (req, res) => {
-    const request = req.body;
-    const selection = request.optradio;
-    const expense = request.expense;
-
-    (async () => {
-        try {
-            const response = await got('http://localhost:4400');
-
-            const tabledata = JSON.parse(response.body);
-
-            const yearlyReturns = [];
-
-            let index = 0;
-
-            for (let i = 0; i < 10; i++) {
-                yearlyReturns.push(parseFloat(tabledata[1][index][6]));
-                index += 1;
-            }
-
-            const returnsAveragePercent = parseInt(yearlyReturns.reduce((a, b) => a + b) / yearlyReturns.length) / 100;
-
-            const weeklyYearTotal = expense * 52;
-            const investmentValueWeekly = weeklyYearTotal * (1 + returnsAveragePercent) ** 10;
-
-            const monthlyYearTotal = expense * 12;
-            const investmentValueMonthly = monthlyYearTotal * (1 + returnsAveragePercent) ** 10;
-
-            let investmentValue;
-
-            selection === 'weekly'
-                ? (investmentValue = investmentValueWeekly)
-                : (investmentValue = investmentValueMonthly);
-
-            res.send(
-                `If you were to invest your ${selection} expense of $${expense} in the S&P 500, your investment would total $${parseInt(
-                    investmentValue
-                )} after 10 years based on the average returns of the S&P 500 over the last 10 years.`
-            );
-        } catch (error) {
-            console.log(error.response.body);
-            //=> 'Internal server error ...'
-        }
-    })();
-});
-
-app.post('/retirement', (req, res) => {
-    const request = req.body;
-    const income = parseInt(request.income);
-    const expense = parseInt(request.expense);
-
-    if (expense > income) {
-        res.send("Your spend is greater than your income, you'll never retire at this rate.");
-    } else {
-        const savingsPercent = parseInt(100 - (expense / income) * 100);
+        const savingsPercent = parseInt(100 - (expenseInt / incomeInt) * 100);
         const initialText = "You'll retire in";
         let text;
 
@@ -135,11 +77,45 @@ app.post('/retirement', (req, res) => {
                 text = `Your savings rate is ${savingsPercent}%. ${retirementText[7]}`;
                 break;
         }
+        setYears(text);
+    };
 
-        res.send(text);
-    }
-});
+    return (
+        <div>
+            <header>
+                <form>
+                    <br />
+                    <fieldset>
+                        <label>
+                            What is your monthly income?
+                            <br />
+                            <input
+                                type="number"
+                                placeholder="12345"
+                                value={income}
+                                maxLength="7"
+                                onChange={(e) => setIncome(e.target.value)}
+                            />
+                        </label>
+                        <br />
+                        <label>
+                            What is your monthly expense?
+                            <br />
+                            <input
+                                type="number"
+                                placeholder="12345"
+                                value={expense}
+                                maxLength="7"
+                                onChange={(e) => setExpense(e.target.value)}
+                            />
+                        </label>
+                    </fieldset>
+                    <button onClick={calcTimeToRetirement}>Submit</button>
+                </form>
+                <p class="text">{totalYears}</p>
+            </header>
+        </div>
+    );
+}
 
-app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}...`);
-});
+export default RetirementCalc;
